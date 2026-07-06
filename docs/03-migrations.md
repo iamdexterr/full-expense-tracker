@@ -109,6 +109,12 @@ Across migrations: ordered by **timestamp**, oldest first.
 
 **Golden rule:** all structure changes go through **one** system — schema + migration. Don't mix manual SQL and migrations, or they fight.
 
+**Migration files are immutable once applied.** Prisma stores a **checksum** of each file when recording it. Editing an already-applied migration (even whitespace / format-on-save) breaks the checksum → error: *"migration X was modified after it was applied"* → it wants to reset.
+- Empty-file hash `e3b0c44298fc1c14...` = you resolved before the file had content.
+- **Fix (ledger-only, data-safe):** `DELETE FROM _prisma_migrations WHERE migration_name='X';` then `migrate resolve --applied X` to re-record the current checksum.
+- **Prevent:** never edit/reopen a migration after applying it; disable format-on-save for `migrations/*.sql`.
+- **Lesson:** generate the SQL *first*, then resolve — order matters.
+
 ---
 
 ## 9. DDL vs DML (where changes belong)
