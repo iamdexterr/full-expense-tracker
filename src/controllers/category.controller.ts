@@ -29,8 +29,6 @@ export const getCategory = asyncHandler(async (req, res) => {
 export const createCategory = asyncHandler(async (req, res) => {
   const { name } = req.body;
 
-  if (!name) throw new AppError(400, "Category name is required");
-
   const category = await prisma.category.create({
     data: { name },
   });
@@ -43,7 +41,6 @@ export const createCategory = asyncHandler(async (req, res) => {
 export const updateCategory = asyncHandler(async (req, res) => {
   const categoryId = Number(req.params.id);
   const { name } = req.body;
-  if (!name) throw new AppError(400, "Category name is required");
 
   const existingCategory = await prisma.category.findUnique({
     where: { id: categoryId },
