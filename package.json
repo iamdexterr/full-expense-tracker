@@ -4,7 +4,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "build": "prisma generate",
+    "start": "tsx src/index.ts",
+    "postinstall": "prisma generate"
   },
   "type": "module",
   "keywords": [],
@@ -17,7 +20,6 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.0.0",
     "prisma": "^7.8.0",
-    "tsx": "^4.23.0",
     "typescript": "^6.0.3"
   },
   "dependencies": {
@@ -27,6 +29,7 @@
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
+    "tsx": "^4.23.0",
     "zod": "^4.4.3"
   }
 }
