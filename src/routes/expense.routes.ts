@@ -11,9 +11,11 @@ import {
   createExpenseSchema,
   updateExpenseSchema,
 } from "../validators/expense.validator.js";
+import { protect } from "../middleware/protect.js";
 
 const router = Router();
 
+router.use(protect);
 router.get("/", listExpenses);
 router.get("/:id", getExpense);
 router.post("/", validate(createExpenseSchema), createExpense); // ← validate runs first

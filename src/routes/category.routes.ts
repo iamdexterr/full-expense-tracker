@@ -11,9 +11,10 @@ import {
   updateCategorySchema,
 } from "../validators/category.validator.js";
 import validate from "../middleware/validate.js";
+import { protect } from "../middleware/protect.js";
 
 const router = Router();
-
+router.use(protect);
 router.get("/", listCategories);
 router.get("/:id", getCategory);
 router.post("/", validate(createCategorySchema), createCategory); // ← added

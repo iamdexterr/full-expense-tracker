@@ -5,7 +5,13 @@ import { AppError } from "../utils/AppError.js";
 
 export const listCategories = asyncHandler(
   async (req: Request, res: Response) => {
-    const categories = await prisma.category.findMany();
+    const userId = req.userId!;
+    const categories = await prisma.category.findMany({
+      where: {
+        OR: [{ userId: null }, { userId }], // predefined globals + your own
+      },
+      orderBy: { name: "asc" },
+    });
 
     res.status(200).json({
       data: categories,
@@ -16,8 +22,9 @@ export const listCategories = asyncHandler(
 
 export const getCategory = asyncHandler(async (req, res) => {
   const categoryId = Number(req.params.id);
-  const category = await prisma.category.findUnique({
-    where: { id: categoryId },
+  const userId = req.userId!;
+  const category = await prisma.category.findFirst({
+    where: { id: categoryId, OR: [{ userId: null }, { userId }] },
   });
   if (!category) throw new AppError(404, "Category not found");
 
@@ -27,10 +34,11 @@ export const getCategory = asyncHandler(async (req, res) => {
   });
 });
 export const createCategory = asyncHandler(async (req, res) => {
+  const userId = req.userId!;
   const { name } = req.body;
 
   const category = await prisma.category.create({
-    data: { name },
+    data: { name, userId },
   });
 
   res.status(201).json({
@@ -41,9 +49,10 @@ export const createCategory = asyncHandler(async (req, res) => {
 export const updateCategory = asyncHandler(async (req, res) => {
   const categoryId = Number(req.params.id);
   const { name } = req.body;
+  const userId = req.userId!;
 
-  const existingCategory = await prisma.category.findUnique({
-    where: { id: categoryId },
+  const existingCategory = await prisma.category.findFirst({
+    where: { id: categoryId, userId },
   });
   if (!existingCategory) throw new AppError(404, "Category not found");
 
@@ -59,9 +68,9 @@ export const updateCategory = asyncHandler(async (req, res) => {
 });
 export const deleteCategory = asyncHandler(async (req, res) => {
   const categoryId = Number(req.params.id);
-
-  const existing = await prisma.category.findUnique({
-    where: { id: categoryId },
+  const userId = req.userId!;
+  const existing = await prisma.category.findFirst({
+    where: { id: categoryId, userId },
   });
   if (!existing) throw new AppError(404, "Category not found");
   const category = await prisma.category.delete({

@@ -2,12 +2,11 @@ import { prisma } from "../db.js";
 import { AppError } from "../utils/AppError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-const CURRENT_USER_ID = 1;
-
 export const listExpenses = asyncHandler(async (req, res) => {
+  const userId = req.userId!;
   const expenses = await prisma.expense.findMany({
     where: {
-      userId: CURRENT_USER_ID,
+      userId,
     },
     orderBy: {
       date: "desc",
@@ -25,9 +24,10 @@ export const listExpenses = asyncHandler(async (req, res) => {
 
 export const getExpense = asyncHandler(async (req, res) => {
   const expenseId = Number(req.params.id);
+  const userId = req.userId!;
 
-  const expense = await prisma.expense.findUnique({
-    where: { id: expenseId },
+  const expense = await prisma.expense.findFirst({
+    where: { id: expenseId, userId },
     include: {
       category: true,
     },
@@ -40,6 +40,7 @@ export const getExpense = asyncHandler(async (req, res) => {
 });
 
 export const createExpense = asyncHandler(async (req, res) => {
+  const userId = req.userId!;
   const { title, amount, date, categoryId } = req.body;
 
   const category = await prisma.category.findUnique({
@@ -54,7 +55,7 @@ export const createExpense = asyncHandler(async (req, res) => {
       amount,
       date,
       categoryId: Number(categoryId),
-      userId: CURRENT_USER_ID,
+      userId: userId,
     },
     include: {
       category: true,
@@ -70,9 +71,10 @@ export const createExpense = asyncHandler(async (req, res) => {
 export const updateExpense = asyncHandler(async (req, res) => {
   const expenseId = Number(req.params.id);
   const { title, amount, date, categoryId } = req.body;
+  const userId = req.userId!;
 
-  const expense = await prisma.expense.findUnique({
-    where: { id: expenseId },
+  const expense = await prisma.expense.findFirst({
+    where: { id: expenseId, userId },
   });
 
   if (!expense) throw new AppError(404, "Expense not found");
@@ -103,9 +105,10 @@ export const updateExpense = asyncHandler(async (req, res) => {
 
 export const deleteExpenses = asyncHandler(async (req, res) => {
   const expenseId = Number(req.params.id);
+  const userId = req.userId!;
 
-  const expense = await prisma.expense.findUnique({
-    where: { id: expenseId },
+  const expense = await prisma.expense.findFirst({
+    where: { id: expenseId, userId },
   });
 
   if (!expense) throw new AppError(404, "Expense not found");
